@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Projeto 01</string>
+    <string name="nome"></string>
+    <string name="botao_ok">Click</string>
+    <string name="btn_limpar">Limpar</string>
+    <string name="btn_alert">Alerta</string>
+    <string name="Nova_tela">Nova</string>
+    <string name="novo">Novo</string>
+  <string name="vazio" />
+    <string name="cancelar">Cancelar</string>
+    <string name="salvar">Salvar</string>
+    <string name="remover">Remover</string>
+    <string name="captura">Tirar Foto</string>
+</resources>
