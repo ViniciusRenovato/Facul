@@ -1,0 +1,199 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+
+var app = require('../app');
+var debug = require('debug')('20220503:server');
+var http = require('http');
+
+/**
+ * Get port from environment and store in Express.
+ */
+
+var port = normalizePort(process.env.PORT || '3000');
+app.set('port', port);
+
+/**
+ * Create HTTP server.
+ */
+
+var server = http.createServer(app);
+
+//Integrating Socket.IO
+const { Server } = require("socket.io");
+const io = new Server(server);
+
+var player1 = { id: '', jogadap1: '', pontos: 0 };
+var player2 = { id: '', jogadap2: '', pontos: 0 };
+
+var player = 1;
+var maxplayer = 2;
+
+io.on('connection', (socket) => {
+  console.log('a user connected');
+  if(maxplayer<2){
+    socket.emit({player:player,permitido:true});
+    maxplayer++;
+  }else{
+    socket.emit({player:player,permitido:false});
+  }
+  if (player == 1) {
+    player1.id == player;
+    socket.emit('user', player);
+    player++;
+    
+  }
+  else if (player == 2) {
+    player2.id == player;
+    socket.emit('user', player);
+    player = 1;
+  }
+  
+
+  socket.on('jogada1', function (jogadaplayer1) {
+    player1.jogadap1 = jogadaplayer1;
+    //console.log('jogada do player 1 www',jogadaplayer1);
+    //socket.broadcast.emit('click1', jogadaplayer1);
+    //socket.emit('click1', jogadaplayer1);
+    ganhador();
+  });
+  socket.on('jogada2', function (jogadaplayer2) {
+    player2.jogadap2 = jogadaplayer2;
+    //console.log('jogada do player 2 www',jogadaplayer2);
+    //socket.broadcast.emit('click2', jogadaplayer2);
+    //socket.emit('click2', jogadaplayer2);
+    ganhador();
+  });
+  var rodadas = 1;
+  function ganhador() {
+    //console.log('jogada p1',player1.jogadap1);
+    //console.log('jogada p2',player2.jogadap2);
+    if (player1.jogadap1 && player2.jogadap2) {
+      var vencedor = '';
+      if (player1.jogadap1 == player2.jogadap2){
+        vencedor = 'Empatou 😑'; 
+      }
+      if (player1.jogadap1 == 'pedra') {
+        if (player2.jogadap2 == 'papel') {
+          vencedor = 'Jogador 2 🧻';
+          player2.pontos++;
+
+        }
+        else if (player2.jogadap2 == 'tesoura') {
+          vencedor = 'Jogador 1 🪨';
+          player1.pontos++;
+
+        }
+      } else if (player1.jogadap1 == 'papel') {
+        if (player2.jogadap2 == 'pedra') {
+          vencedor = 'Jogador 1 🧻';
+          player1.pontos++;
+
+        }
+        else if (player2.jogadap2 == 'tesoura') {
+          vencedor = 'Jogador 2 ✂️';
+          player2.pontos++;
+
+        }
+
+      } if (player1.jogadap1 == 'tesoura') {
+        if (player2.jogadap2 == 'pedra') {
+          vencedor = 'Jogador 2 🪨';
+          player2.pontos++;
+
+        }
+        else if (player2.jogadap2 == 'papel') {
+          vencedor = 'Jogador 1 ✂️';
+          player1.pontos++;
+
+        }
+      }
+      //console.log('vencedor: '+ vencedor);
+      io.emit('vencedor',vencedor);
+      io.emit('rodadas',rodadas);
+      io.emit('pontos1',player1.pontos);
+      io.emit('pontos2',player2.pontos);
+    } 
+    rodadas++;
+  }
+  socket.on('reset',function reset(reset){
+
+    resetado = reset;
+    vencedor='';
+    player1.jogadap1='';
+    player2.jogadap2='';
+    socket.emit('resetado',resetado);
+    socket.broadcast.emit('resetado',resetado);
+  })
+});
+
+
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+
+function normalizePort(val) {
+  var port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
+
+  if (port >= 0) {
+    // port number
+    return port;
+  }
+
+  return false;
+}
+
+/**nom
+ * Event listener for HTTP server "error" event.
+ */
+
+function onError(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  var bind = typeof port === 'string'
+    ? 'Pipe ' + port
+    : 'Port ' + port;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+function onListening() {
+  var addr = server.address();
+  var bind = typeof addr === 'string'
+    ? 'pipe ' + addr
+    : 'port ' + addr.port;
+  debug('Listening on ' + bind);
+}
