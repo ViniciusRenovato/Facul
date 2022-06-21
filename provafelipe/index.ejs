@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" href="./css/style.css">
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
+
+    <title>JOGO</title>
+</head>
+<body class="blue-text text-darken-2 #bdbdbd grey lighten-1">
+    <div class="container center">    
+        <div class="row">
+          <form id="formulario" action="login" method="get">
+            <h4>Digite o usuario</h4>
+            <input id="usuario" type="text">    
+            <h4>Digite a senha</h4>
+            <input id="senha" type="text">            
+            <button id="botao" type="submit"> Enviar</button>
+          </form>
+        </div>
+        <div id="resultado">
+          <h4>seco ano</h4>
+        </div>
+    </div>
+    <script src="./js/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+    
+    <script>
+      socket=io();
+      var usuario ;
+      var senha ;
+      
+
+      $('#formulario').on('submit',(e)=>{
+        e.preventDefault();
+        usuario = $('#usuario').val();
+        senha = $('#senha').val();
+        console.log(usuario+' '+senha);
+        socket.emit('usuario',{usuario,senha});
+      });
+
+      socket.on('permissao',(rogerio)=>{
+        if(rogerio){
+          $('#resultado').text('positivo');
+        }else{
+          $('#resultado').text('negativo');
+        }
+
+      });
+ 
+
+    </script>
+
+</body>
+</html>

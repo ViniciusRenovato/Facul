@@ -1,0 +1,16 @@
+{
+  "name": "provafelipe",
+  "version": "1.0.0",
+  "main": "index.html",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "ejs": "^3.1.8",
+    "express": "^4.18.1",
+    "formidable": "^2.0.1"
+  }
+}
